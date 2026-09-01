@@ -71,6 +71,16 @@ export async function enqueue(input: {
     if (existing) return 'already-queued';
   }
 
+  // Screenshot detection has no dedup_key to check yet — a single MediaStore
+  // write can still fire the watcher's ContentObserver more than once (seen
+  // for real: one screenshot produced 3 onChange callbacks), so also refuse a
+  // second row for a URI already sitting in the queue unparsed.
+  const existingByUri = await db.getFirstAsync<{ id: number }>(
+    'select id from upload_queue where image_uri = ? and parsed_json is null',
+    input.imageUri
+  );
+  if (existingByUri) return 'already-queued';
+
   await db.runAsync(
     `insert into upload_queue (image_uri, parsed_json, raw_text, dedup_key, last_error)
      values (?, ?, ?, ?, ?)`,
