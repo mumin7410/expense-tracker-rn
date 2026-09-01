@@ -8,6 +8,9 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "screenshot-watcher": [
+        "./modules/screenshot-watcher/src/index.ts"
       ]
     }
   },

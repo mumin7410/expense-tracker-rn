@@ -1,18 +1,17 @@
 {
   "expo": {
-    "name": "expense-tracker-rn",
+    "name": "สลิปสรุป",
     "slug": "expense-tracker-rn",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expensetrackerrn",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
+    "scheme": "expensetracker",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f3f6fa",
     "android": {
+      "package": "com.slipsummary.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#d2ddff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -25,10 +24,18 @@
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ให้เลือกรูปสลิปจากคลังภาพเพื่ออ่านยอดและวันที่"
+        }
+      ],
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#f3f6fa",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
