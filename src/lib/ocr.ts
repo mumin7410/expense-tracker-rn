@@ -1,6 +1,6 @@
 import { File } from 'expo-file-system';
 
-import { ocrBaseUrl, requireEnv } from '@/lib/env';
+import { ocrApiKey, ocrBaseUrl, requireEnv } from '@/lib/env';
 
 export type SlipType = 'transfer' | 'bill_payment' | 'topup';
 
@@ -69,8 +69,15 @@ function describe(status: number): OcrError {
   switch (status) {
     case 400:
       return new OcrError('อ่านรูปนี้ไม่ได้ ลองถ่ายใหม่ให้เห็นสลิปเต็มใบ', 400, false);
+    case 401:
+      // Retryable on purpose, even though retrying with the same build cannot
+      // succeed. A wrong or missing key is a deployment fault, not a verdict on
+      // this image, and `queue.ts` deletes the row for anything it treats as
+      // final — so the slip waits for a fixed server or a new build instead of
+      // being thrown away.
+      return new OcrError('แอปเชื่อมต่อบริการอ่านสลิปไม่ได้ (ยังไม่ได้รับอนุญาต)', 401, true);
     case 413:
-      return new OcrError('รูปใหญ่เกิน 10 MB ย่อขนาดก่อนแล้วลองใหม่', 413, false);
+      return new OcrError('รูปใหญ่เกิน 3 MB ย่อขนาดก่อนแล้วลองใหม่', 413, false);
     case 415:
       return new OcrError('ไฟล์นี้ไม่ใช่รูปภาพ', 415, false);
     case 503:
@@ -106,6 +113,9 @@ export async function parseSlip(imageUri: string): Promise<OcrResult> {
     response = await fetch(`${base}/api/v1/ocr/parse`, {
       method: 'POST',
       body,
+      // Omitted entirely when unset, so a local service with no key configured
+      // behaves exactly as it did before there was a key at all.
+      headers: ocrApiKey ? { 'X-API-Key': ocrApiKey } : undefined,
       signal: controller.signal,
     });
   } catch (cause) {
