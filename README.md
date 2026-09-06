@@ -3,7 +3,9 @@
 React Native + Expo (SDK 57), Android only. Reads Thai bank transfer slips, sends
 them to the OCR service, and stores the result in Supabase.
 
-This is phase 4 of a four-part project. The other two pieces live elsewhere:
+The app is built through phase 6: the screens and data layer (phases 1–4), the
+offline queue and screenshot watcher (phase 5), and the home-screen widget and
+slip-saved notifications (phase 6). The other two pieces live elsewhere:
 
 | Piece | Repo | What it does |
 | --- | --- | --- |
@@ -92,3 +94,5 @@ the image itself is the problem.
   deep link when the config is what is broken.
 - The OCR service has no authentication.
 - Facebook sign-in is not set up. Google is.
+- Notification quick-pick category buttons are written but were never seen on a
+  device — see `docs/phase-6-notes.md`.

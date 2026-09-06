@@ -79,6 +79,11 @@ under the current `expo-blur` API, and it would not change the pixels anyway.
 
 ## Phase 5 and 6 shape
 
+> Both are built. Phase 6 is written up in `phase-6-notes.md`, including which
+> parts were verified on a device and which were not. What follows is the plan
+> as it stood at the end of phase 4, kept because it records why each piece is
+> shaped the way it is.
+
 Both need a native rebuild, not fast refresh, and both are better tested on a
 real device than the emulator.
 
