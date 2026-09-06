@@ -81,16 +81,33 @@ to agree, and refusing the prompt leaves the toggle off.
   behaving correctly: `status === 'duplicate'` never notifies.
 - The permission prompt fires from the settings toggle, and granting it flips
   `POST_NOTIFICATIONS` to `granted=true`.
+- **The quick-pick buttons render and write both fields.** An uncategorised
+  notification showed `บัตรเครดิต` (the one category `recentCategoryPicks` found
+  confirmed) beside `เลือกหมวด`. Tapping it dropped the pending count 2 → 1 and
+  raised ผู้รับที่จำไว้ 1 → 2 — the second number is the proof `is_confirmed`
+  went with `category_id`, since `learn_recipient_category` fires on nothing else.
+- **`onBackgroundEvent` handles an action with the app gone.** With the app
+  swiped off Recents and no process in `ps`, tapping the category button spawned
+  a headless process, left the launcher as the top activity — the app never came
+  forward — and raised ผู้รับที่จำไว้ 2 → 3.
+- **The queue path notifies.** Saving with airplane mode on showed the
+  "เก็บไว้ส่งทีหลัง" panel; queueing it, restoring the network and foregrounding
+  the app drained the queue and produced `บันทึกแล้ว ฿55.55 · บัตรเครดิต`.
+- **The settings toggle now tracks the OS.** Revoking `POST_NOTIFICATIONS`
+  flipped the toggle off by itself and swapped the hint for
+  `ต้องอนุญาตแจ้งเตือนก่อนจึงจะเปิดได้`.
+
+Two things about the emulator that cost time and are worth knowing:
+
+- **`am force-stop` cancels the package's notifications**, so it cannot be used
+  to set up a background-event test. Swiping the app off Recents leaves them.
+- **Airplane mode also cuts the dev client's link to Metro** when the bundle was
+  loaded from the LAN IP, and the reconnect reloads the bundle out from under
+  whatever screen is being tested. Load from `localhost` with
+  `adb reverse tcp:8081 tcp:8081` and Metro survives, because adb is not network.
 
 ## Not seen on a device yet
 
-- **The quick-pick action buttons.** Only the uncategorised notification's title
-  was confirmed. Neither the buttons themselves nor `ACTION_PRESS` writing
-  `category_id` + `is_confirmed` has been exercised.
-- **`onBackgroundEvent`** — an action tapped with the app killed. This is the
-  whole reason `index.js` exists.
-- **The queue path's notification.** Only the review screen's save was driven;
-  `flushQueue` calls the same function but was not run.
 - **The total moving on save.** Every test slip is dated August 2026 and the
   widget shows the current month, so a save never changed the number on screen.
   A temporary edit pointing `loadWidgetData` at August did show the populated

@@ -173,11 +173,20 @@ function SlipForm({
   const canSave = Boolean(parsed.transaction_date) && amount.trim().length > 0;
 
   const onSave = async () => {
-    const outcome = await save.mutateAsync({
-      parsed,
-      rawText,
-      overrides: { amount: amount.trim(), recipient_name: recipientName.trim() || null },
-    });
+    // A failed save is not an exception here — `save.error` drives the retry
+    // and "เก็บไว้ส่งทีหลัง" panel below, which is how the slip survives a
+    // dead network. Without this catch the rejection from mutateAsync goes
+    // unhandled and Android logs it as a crash-looking error while the screen
+    // is in fact working as designed.
+    const outcome = await save
+      .mutateAsync({
+        parsed,
+        rawText,
+        overrides: { amount: amount.trim(), recipient_name: recipientName.trim() || null },
+      })
+      .catch(() => null);
+    if (!outcome) return;
+
     // A duplicate means the slip is already stored, so the user is done either
     // way and the screen closes on both.
     if (outcome.status === 'saved' || outcome.status === 'duplicate') router.back();

@@ -94,5 +94,3 @@ the image itself is the problem.
   deep link when the config is what is broken.
 - The OCR service has no authentication.
 - Facebook sign-in is not set up. Google is.
-- Notification quick-pick category buttons are written but were never seen on a
-  device — see `docs/phase-6-notes.md`.
