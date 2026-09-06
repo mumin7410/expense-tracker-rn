@@ -10,6 +10,7 @@
     "backgroundColor": "#f3f6fa",
     "android": {
       "package": "com.slipsummary.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#d2ddff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -60,7 +61,8 @@
         }
       ],
       "./plugins/with-notification-icon.js",
-      "./plugins/with-notifee-maven.js"
+      "./plugins/with-notifee-maven.js",
+      "./plugins/with-release-signing.js"
     ],
     "experiments": {
       "typedRoutes": true,
