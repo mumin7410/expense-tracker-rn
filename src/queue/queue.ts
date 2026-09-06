@@ -1,7 +1,10 @@
-import type { TransactionInsert } from '@/db/types';
+import type { TransactionInsert, TransactionWithCategory } from '@/db/types';
+import { SELECT } from '@/features/transactions/queries';
+import { notifySlipSaved } from '@/features/notifications/notify-slip-saved';
 import { OcrError, parseSlip, type ParsedSlip } from '@/lib/ocr';
 import { supabase } from '@/lib/supabase';
 import { getQueueDb, type QueueRow } from '@/queue/db';
+import { refreshWidget } from '@/widgets/refresh-widget';
 
 /** Postgres unique violation on `(user_id, dedup_key)` — the slip is already in. */
 const UNIQUE_VIOLATION = '23505';
@@ -200,12 +203,19 @@ export async function flushQueue(userId: string): Promise<FlushResult> {
       raw_ocr_text: rawText ?? '',
     };
 
-    const { error } = await supabase.from('transactions').insert(row);
+    const { data: inserted, error } = await supabase
+      .from('transactions')
+      .insert(row)
+      .select(SELECT)
+      .single();
 
     if (!error) {
       await removeFromQueue(item.id);
       result.uploaded += 1;
       result.remaining -= 1;
+      const transaction = inserted as unknown as TransactionWithCategory;
+      notifySlipSaved(transaction).catch(() => {});
+      refreshWidget();
       continue;
     }
 

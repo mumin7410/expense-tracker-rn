@@ -1,3 +1,4 @@
+import notifee from '@notifee/react-native';
 import { ChevronRight, LogOut, TriangleAlert, User } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -74,9 +75,10 @@ export default function SettingsScreen() {
               value={notificationsOn}
               disabled={!settings || updateSettings.isPending}
               accessibilityLabel="แจ้งเตือนเมื่อบันทึกสลิป"
-              onValueChange={(next) =>
-                updateSettings.mutate({ notification_enabled: next })
-              }
+              onValueChange={async (next) => {
+                if (next) await notifee.requestPermission();
+                updateSettings.mutate({ notification_enabled: next });
+              }}
             />
           </View>
         </Surface>

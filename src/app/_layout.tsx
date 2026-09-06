@@ -5,6 +5,7 @@ import {
   Anuphan_700Bold,
   useFonts,
 } from '@expo-google-fonts/anuphan';
+import notifee from '@notifee/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { handleNotificationEvent } from '@/features/notifications/handle-notification-event';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { color } from '@/theme/tokens';
 
@@ -36,6 +38,10 @@ export default function RootLayout() {
     Anuphan_600SemiBold,
     Anuphan_700Bold,
   });
+
+  // Background events are wired once in index.js, before this ever mounts —
+  // this only covers a tap/action while the app is already in the foreground.
+  useEffect(() => notifee.onForegroundEvent(handleNotificationEvent), []);
 
   return (
     <QueryClientProvider client={queryClient}>

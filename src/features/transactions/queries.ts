@@ -1,12 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { TransactionInsert, TransactionWithCategory } from '@/db/types';
+import { notifySlipSaved } from '@/features/notifications/notify-slip-saved';
 import { useAuth } from '@/lib/auth';
 import type { ParsedSlip } from '@/lib/ocr';
 import { supabase } from '@/lib/supabase';
+import { refreshWidget } from '@/widgets/refresh-widget';
 
 /** Everything the lists need, with the category joined in one round trip. */
-const SELECT = '*, category:categories(id, name, icon)';
+export const SELECT = '*, category:categories(id, name, icon)';
 
 export const transactionKeys = {
   all: ['transactions'] as const,
@@ -136,8 +138,12 @@ export function useSaveSlip() {
         transaction: data as unknown as TransactionWithCategory,
       };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+      if (result.status === 'saved') {
+        notifySlipSaved(result.transaction).catch(() => {});
+        refreshWidget();
+      }
     },
   });
 }
@@ -173,6 +179,7 @@ export function useConfirmCategory() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
+      refreshWidget();
     },
   });
 }
