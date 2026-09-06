@@ -104,5 +104,6 @@ service has no authentication, `expensetracker://auth/callback` is not in the
 Supabase redirect allowlist, Facebook sign-in is not set up, and Node 24.2 is
 below what React Native 0.86 declares.
 
-The emulator also needs `-dns-server 8.8.8.8,8.8.4.4` or Google sign-in fails
-to resolve accounts.google.com.
+The emulator used for this phase was launched with
+`-dns-server 8.8.8.8,8.8.4.4`. Whether Google sign-in still works without it
+was not retested.
