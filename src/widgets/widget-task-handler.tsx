@@ -55,7 +55,9 @@ export const widgetTaskHandler: WidgetTaskHandler = async (props) => {
     case 'WIDGET_RESIZED': {
       try {
         const data = await loadWidgetData();
-        console.log('[widget]', props.widgetAction, JSON.stringify(data));
+        // Dev only: this prints the month's spend, which does not belong in a
+        // release logcat. It is the only window into a headless render.
+        if (__DEV__) console.log('[widget]', props.widgetAction, JSON.stringify(data));
         props.renderWidget(<ExpenseWidget {...data} />);
       } catch (err) {
         // No session yet, or offline — leave the widget showing its last

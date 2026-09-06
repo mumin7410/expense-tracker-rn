@@ -214,7 +214,9 @@ export async function flushQueue(userId: string): Promise<FlushResult> {
       result.uploaded += 1;
       result.remaining -= 1;
       const transaction = inserted as unknown as TransactionWithCategory;
-      notifySlipSaved(transaction).catch(() => {});
+      notifySlipSaved(transaction).catch((err) =>
+        console.error('[notify] queued slip notification failed', err)
+      );
       refreshWidget();
       continue;
     }

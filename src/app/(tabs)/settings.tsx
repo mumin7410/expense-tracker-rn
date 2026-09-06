@@ -1,4 +1,3 @@
-import notifee from '@notifee/react-native';
 import { ChevronRight, LogOut, TriangleAlert, User } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -7,6 +6,7 @@ import { ScreenBackground } from '@/components/screen-background';
 import { Surface } from '@/components/surface';
 import { Toggle } from '@/components/toggle';
 import { useCategories } from '@/features/categories/queries';
+import { useNotificationPermission } from '@/features/notifications/use-notification-permission';
 import {
   useLearnedRecipientCount,
   useUpdateSettings,
@@ -28,6 +28,7 @@ export default function SettingsScreen() {
   const { data: categories } = useCategories();
   const { data: learnedRecipients } = useLearnedRecipientCount();
   const screenshotWatcher = useScreenshotWatcher();
+  const notificationPermission = useNotificationPermission();
 
   const user = session?.user;
   const displayName =
@@ -35,7 +36,10 @@ export default function SettingsScreen() {
     (user?.user_metadata?.name as string | undefined) ??
     'บัญชีของฉัน';
 
-  const notificationsOn = settings?.notification_enabled ?? true;
+  // Both have to agree, or the toggle claims notifications are on while
+  // Android silently drops them. `granted === null` is the pre-check tick.
+  const notificationsOn =
+    (settings?.notification_enabled ?? true) && notificationPermission.granted !== false;
 
   return (
     <ScreenBackground>
@@ -68,7 +72,9 @@ export default function SettingsScreen() {
             <View style={styles.rowText}>
               <Text style={styles.rowLabel}>แจ้งเตือนเมื่อบันทึกสลิป</Text>
               <Text style={styles.rowHint}>
-                บอกยอดและหมวดทันทีที่อ่านสลิปเสร็จ
+                {notificationPermission.granted === false
+                  ? 'ต้องอนุญาตแจ้งเตือนก่อนจึงจะเปิดได้'
+                  : 'บอกยอดและหมวดทันทีที่อ่านสลิปเสร็จ'}
               </Text>
             </View>
             <Toggle
@@ -76,7 +82,10 @@ export default function SettingsScreen() {
               disabled={!settings || updateSettings.isPending}
               accessibilityLabel="แจ้งเตือนเมื่อบันทึกสลิป"
               onValueChange={async (next) => {
-                if (next) await notifee.requestPermission();
+                // Same shape as the screenshot watcher below: without the OS
+                // permission there is nothing to turn on, so leave it off
+                // rather than storing an intent the OS will not honour.
+                if (next && !(await notificationPermission.request())) return;
                 updateSettings.mutate({ notification_enabled: next });
               }}
             />

@@ -141,7 +141,11 @@ export function useSaveSlip() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: transactionKeys.all });
       if (result.status === 'saved') {
-        notifySlipSaved(result.transaction).catch(() => {});
+        // Never block a save on the notification, but say so when it fails —
+        // silence here is indistinguishable from "the user turned them off".
+        notifySlipSaved(result.transaction).catch((err) =>
+          console.error('[notify] slip saved notification failed', err)
+        );
         refreshWidget();
       }
     },
