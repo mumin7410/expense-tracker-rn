@@ -37,8 +37,21 @@ emulator** เปล่าประโยชน์สำหรับไฟล์
 | armeabi-v7a | 16.4 MB | เครื่องเก่ากว่านั้น |
 | x86 / x86_64 | 50.1 MB | **emulator เท่านั้น** |
 
-APK ที่จำกัด ABI แล้วจะรันบน emulator x86 ไม่ได้ ซึ่งไม่เป็นปัญหาเพราะตอนพัฒนา
-ใช้ debug build อยู่แล้ว
+APK ที่จำกัด ABI แล้วจะรันบน emulator x86 ไม่ได้
+
+### อยากทดสอบ release บน emulator
+
+ใส่ `x86_64` เพิ่มเข้าไปชั่วคราว — ได้ config release เหมือนกันทุกอย่าง (minify,
+JS bundle ฝังในแอพ, ไม่ต่อ Metro, บล็อก cleartext) ต่างแค่ ABI
+
+```bash
+./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+```
+
+**สำรอง APK ตัวแจกไว้ก่อน** เพราะ build นี้เขียนทับ `app-release.apk` ชื่อเดียวกัน
+
+ติดตั้งทับแอพ dev ไม่ได้ — package เดียวกันแต่คนละลายเซ็น Android จะปฏิเสธ
+ต้อง `adb uninstall com.slipsummary.app` ก่อน ซึ่งจะล้าง session และคิวในเครื่องทิ้ง
 
 build ครั้งแรกใช้เวลา ~44 นาที (compile native ทุกอย่างใหม่) ครั้งถัดไปเร็วกว่ามาก
 เพราะ `android/app/build/intermediates/cxx/` ถูก cache ไว้
